@@ -1,6 +1,7 @@
 package dao
 
 import (
+	"errors"
 	"nucleous/models"
 	"time"
 
@@ -27,12 +28,15 @@ func (dao *TokenDAO) CreateNewToken(tok *models.Token) (err error) {
 }
 
 /*CheckToken - проверка токена в бд*/
-func (dao *TokenDAO) CheckToken(tok *models.Token) (err error) {
+func (dao *TokenDAO) CheckToken(tok *models.Token) (token *models.Token, err error) {
 	var model models.Token
 
-	err = dao.Database.C(TokensCollection).
+	// err = dao.Database.C(TokensCollection).Find({
+	// })
+
+	return nil, errors.New("Not implemented")
 }
 
-func (dao *TokenDAO) RemoveToken(tok *models.Token)(err error){
-	
+func (dao *TokenDAO) RemoveToken(tok *models.Token) (err error) {
+	return errors.New("Not implemented")
 }
