@@ -1,6 +1,8 @@
 package security
 
 import (
+	"fmt"
+	"nucleous/configuration"
 	"nucleous/dao"
 
 	"github.com/jenazads/gojwt"
@@ -14,15 +16,24 @@ type ECDSAMiddle struct {
 }
 
 /*Login - авторизация*/
-func (middleware *ECDSAMiddle) Login() error {}
+func (middleware *ECDSAMiddle) Login() error {
+	fmt.Println("test")
+	return nil
+}
 
 /*Registration - регистрация*/
-func (middleware *ECDSAMiddle) Registration() error {}
+func (middleware *ECDSAMiddle) Registration() error {
+	return nil
+}
 
 /*Logout - выход из аккаунта*/
-func (middleware *ECDSAMiddle) Logout() error {}
+func (middleware *ECDSAMiddle) Logout() error {
+	return nil
+}
 
 /*New - создание новой прослойки*/
-func (middleware *ECDSAMiddle) New(tokensDao *dao.TokenDAO, usersDao *dao.UserDAO) *ECDSAMiddle {
-	jwtMiddle, err := gojwt.NewGojwtECDSA("atom_nucleous", "Access_key", "./keys/priv_key.pem", "./keys/pub_key.pem", "384", 1)
+func (middleware *ECDSAMiddle) New(tokensDao *dao.TokenDAO, usersDao *dao.UserDAO, config *configuration.JWTPay) *ECDSAMiddle {
+	jwtMiddle, err := gojwt.NewGojwtECDSA(config.NameServer, config.KeyName, config.PrivateKeyPath, config.PublicKeyPath, config.LengthKey, config.AmountHoursExpiredToken)
+	middleware.JWTEcdsa = jwtMiddle
+	return nil
 }
