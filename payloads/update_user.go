@@ -46,25 +46,23 @@ func (pay *UserUpdatePayload) validateUserName() error {
 	match, _ := regexp.MatchString(usernamePattern, pay.UserName)
 	if match {
 		return nil
-	} else {
-		return errors.New("unsupporting username")
 	}
+	return errors.New("unsupporting username")
 }
 
 func (pay *UserUpdatePayload) validatePassword() error {
 	match, _ := regexp.MatchString(passwordPattern, pay.Password)
 	if match {
 		return nil
-	} else {
-		return errors.New("unsupporting password")
 	}
+	return errors.New("unsupporting password")
+
 }
 
 func (pay *UserUpdatePayload) validateEmail() error {
 	match, _ := regexp.MatchString(emailPattern, pay.Email)
 	if match {
 		return nil
-	} else {
-		return errors.New("unsupporting email")
 	}
+	return errors.New("unsupporting email")
 }
