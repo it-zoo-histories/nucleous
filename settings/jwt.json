@@ -1,0 +1,8 @@
+{
+    "nameserver": "nucleous_server",
+    "keyname": "access_token",
+    "private_key": "../keys/priv_key.pem",
+    "public_key": "../keys/pub_key.pem",
+    "token_time_expired": 1,
+    "length_key": "384"
+}
