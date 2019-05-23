@@ -6,18 +6,31 @@ import (
 	"nucleous/payloads"
 )
 
+/*UserDAO - dao для работы с коллекцией пользователей*/
 type UserDAO struct {
 	Database *Database
 }
 
 const (
-	UsersCollection  = "users"
-	ReservedTokenNil = "<nil>"
+	usersCollection = "users"
 )
 
+/*New - инициализация userdao инстанса*/
 func (dao *UserDAO) New(database *Database) *UserDAO {
 	dao.Database = database
 	return dao
+}
+
+/*CheckExistCollection - проверка наличия коллекции в бд*/
+func (dao *UserDAO) CheckExistCollection() error {
+	_, err := (*dao.Database.Database).CollectionExists(nil, usersCollection)
+	return err
+}
+
+/*CreateCollection - создание коллекции с токенами*/
+func (dao *UserDAO) CreateCollection() error {
+	_, err := (*dao.Database.Database).CreateCollection(nil, usersCollection, nil)
+	return err
 }
 
 /*CreateNewUser - создание нового пользователя*/

@@ -1,6 +1,7 @@
 package dao
 
 import (
+	"errors"
 	"nucleous/configuration"
 
 	driver "github.com/arangodb/go-driver"
@@ -10,10 +11,16 @@ import (
 /*Database - обёртка над подключённым юзером к бд*/
 type Database struct {
 	ConnectUser *driver.Client
+	Database    *driver.Database
 }
 
-/*Connection - подключение к бд*/
-func (db *Database) Connection(config *configuration.DatabaseConfiguration) error {
+const (
+	// DatabaseName -
+	DatabaseName = "Client"
+)
+
+/*ConnectionUser - подключение пользователя к бд*/
+func (db *Database) ConnectionUser(config *configuration.DatabaseConfiguration) error {
 	conn, err := http.NewConnection(http.ConnectionConfig{
 		Endpoints: []string{config.Address},
 	})
@@ -33,5 +40,20 @@ func (db *Database) Connection(config *configuration.DatabaseConfiguration) erro
 
 	db.ConnectUser = &connectedUser
 
+	return nil
+}
+
+/*ConnectToBD - подключение к бд*/
+func (db *Database) ConnectToBD() error {
+	if db.ConnectUser == nil {
+		return errors.New("user can not connect to db")
+	}
+
+	database, err2 := (*db.ConnectUser).Database(nil, DatabaseName)
+	if err2 != nil {
+		return err2
+	}
+
+	db.Database = &database
 	return nil
 }
