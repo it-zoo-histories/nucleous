@@ -5,15 +5,15 @@ import (
 	"regexp"
 )
 
-const (
-	ReservedTokenNil = "<nil>"
-)
-
 /*UserUpdatePayload - */
 type UserUpdatePayload struct {
 	UserName string `json:"username"`
 	Password string `json:"password"`
 	Email    string `json:"email"`
+
+	ValidateUsername bool
+	ValidatePassword bool
+	ValidateEmail    bool
 }
 
 const (
@@ -25,13 +25,19 @@ const (
 /*Validate - валидация полей*/
 func (pay *UserUpdatePayload) Validate() *UserUpdatePayload {
 	if err := pay.validateUserName(); err != nil {
-		pay.UserName = ReservedTokenNil
+		pay.ValidateUsername = false
+	} else {
+		pay.ValidatePassword = true
 	}
 	if err2 := pay.validatePassword(); err2 != nil {
-		pay.Password = ReservedTokenNil
+		pay.ValidatePassword = false
+	} else {
+		pay.ValidatePassword = true
 	}
 	if err3 := pay.validateEmail(); err3 != nil {
-		pay.Email = ReservedTokenNil
+		pay.ValidateEmail = false
+	} else {
+		pay.ValidateEmail = true
 	}
 	return pay
 }
