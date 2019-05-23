@@ -3,13 +3,11 @@ package dao
 import (
 	"errors"
 	"nucleous/models"
-	"time"
-
-	"gopkg.in/mgo.v2"
+	"nucleous/payloads"
 )
 
 type UserDAO struct {
-	Database *mgo.Database
+	Database *Database
 }
 
 const (
@@ -17,63 +15,52 @@ const (
 	ReservedTokenNil = "<nil>"
 )
 
-func (dao *UserDAO) New(database *mgo.Database) *UserDAO {
+func (dao *UserDAO) New(database *Database) *UserDAO {
 	dao.Database = database
 	return dao
 }
 
 /*CreateNewUser - создание нового пользователя*/
 func (dao *UserDAO) CreateNewUser(user *models.User) (err error) {
-	user.Created = time.Now()
-	user.Verificated = false
+	// user.Created = time.Now()
+	// user.Verificated = false
 
-	err = dao.Database.C(UsersCollection).Insert(&user)
+	// err = dao.Database.C(UsersCollection).Insert(&user)
 	return
 }
 
 /*UpdateUser - обновление данных пользователя по его идентификатору*/
-func (dao *UserDAO) UpdateUser(userid string, newpayload *models.User) (updated *models.User, err error) {
-	iduser, errTranslate := bson.O
-	if errTranslate != nil {
-		return &models.User{}, errTranslate
-	}
+func (dao *UserDAO) UpdateUser(userid string, newpayload *payloads.UserUpdatePayload) (updated *models.User, err error) {
+	// iduser := bson.ObjectIdHex(userid)
 
-	var modelUser models.User
+	// var modelUser models.User
 
-	err = dao.Database.C(UsersCollection).Find(bson.M{
-		"_id": iduser,
-	}).One(&modelUser)
+	// err = dao.Database.C(UsersCollection).Find(bson.M{
+	// "_id": iduser,
+	// }).One(&modelUser)
 
-	if err != nil {
-		return &models.User{}, err
-	}
+	// if err != nil {
+	// return &models.User{}, err
+	// }
 
-	if errCheckUserVerification := dao.CheckVerificationUser(modelUser); errCheckUserVerification != nil {
-		return errCheckUserVerification
-	}
-
+	// if errCheckUserVerification := dao.checkVerificationUser(modelUser); errCheckUserVerification != nil {
+	// return nil, errCheckUserVerification
+	// }
+	return nil, nil
 }
 
-/*CheckVerificationUser - проверка подтверждённия аккаунта пользователя*/
-func (dao *UserDAO) CheckVerificationUser(userModel models.User) error {
+/*setupNewPayload - установка новых значений пользователю*/
+func (dao *UserDAO) setupNewPayload(userInDb *models.User, payload *payloads.UserUpdatePayload) error {
+	return nil
+}
+
+/*checkVerificationUser - проверка подтверждённия аккаунта пользователя*/
+func (dao *UserDAO) checkVerificationUser(userModel models.User) error {
 	if userModel.Verificated {
 		return nil
 	} else {
 		return errors.New("user can not change user information")
 	}
-}
-
-func (dao *UserDAO) validationName(username string) error {
-
-}
-
-func (dao *UserDAO) validationEmail(email string) error {
-
-}
-
-/*ValidationPassword - */
-func (dao *UserDAO) validationPassword(password string) error {
-
 }
 
 // /*ChangeModelonModel - изменить модель пользователя на модель пользователя*/
