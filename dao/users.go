@@ -2,8 +2,10 @@ package dao
 
 import (
 	"errors"
+	"log"
 	"nucleous/models"
 	"nucleous/payloads"
+	"time"
 )
 
 /*UserDAO - dao для работы с коллекцией пользователей*/
@@ -13,6 +15,7 @@ type UserDAO struct {
 
 const (
 	usersCollection = "users"
+	dao2Name        = "[NUCLEOUS:USERS]: "
 )
 
 /*New - инициализация userdao инстанса*/
@@ -35,8 +38,20 @@ func (dao *UserDAO) CreateCollection() error {
 
 /*CreateNewUser - создание нового пользователя*/
 func (dao *UserDAO) CreateNewUser(user *models.User) (err error) {
-	// user.Created = time.Now()
-	// user.Verificated = false
+	user.Created = time.Now()
+	user.Verificated = false
+
+	coll, err := (*dao.Database.Database).Collection(nil, usersCollection)
+	if err != nil {
+		return err
+	}
+
+	meta, err2 := coll.CreateDocument(nil, user)
+	if err2 != nil {
+		return err2
+	}
+
+	log.Println(dao2Name+" meta infor after creating: ", meta)
 
 	// err = dao.Database.C(UsersCollection).Insert(&user)
 	return

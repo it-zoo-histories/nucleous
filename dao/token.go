@@ -2,7 +2,9 @@ package dao
 
 import (
 	"errors"
+	"log"
 	"nucleous/models"
+	"time"
 )
 
 /*TokenDAO - */
@@ -13,6 +15,7 @@ type TokenDAO struct {
 const (
 	/*TokensCollection - коллекция с токенами*/
 	tokensCollection = "tokens"
+	daoName          = "[NUCLEOUS:TOKENS]: "
 )
 
 /*New - инициализация новой бд*/
@@ -35,10 +38,20 @@ func (dao *TokenDAO) CreateCollection() error {
 
 /*CreateNewToken - добавление нового токена в бд*/
 func (dao *TokenDAO) CreateNewToken(tok *models.Token) (err error) {
-	// tok.Created = time.Now()
-	// tok.ID = bson.NewObjectId()
-	// context := context.Background()
-	// err = dao.Database.C(TokensCollection).Insert(tok)
+
+	tok.Created = time.Now()
+	col, err := (*dao.Database.Database).Collection(nil, tokensCollection)
+
+	if err != nil {
+		return err
+	}
+
+	meta, err2 := col.CreateDocument(nil, tok)
+	if err2 != nil {
+		return err2
+	}
+
+	log.Println(daoName+" meta information: ", meta)
 	return
 }
 
