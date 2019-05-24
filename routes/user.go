@@ -20,9 +20,16 @@ type UserRoute struct {
 }
 
 const (
+	createUser         = "/user/create"
+	findAllUsers       = "/user/all"
 	updateUserSettings = "/user"
 	removeUserByID     = "/user/remove"
 )
+
+/*createUser - создание пользователя*/
+func (route *UserRoute) createUser(w http.ResponseWriter, r *http.Request) {
+
+}
 
 func (route *UserRoute) updateUserSettings(w http.ResponseWriter, r *http.Request) {
 	var payload payloads.UserUpdatePayload
@@ -56,6 +63,7 @@ func (route *UserRoute) InitRoute(tokens *dao.TokenDAO, users *dao.UserDAO, jwtM
 
 /*RoutesSetting - конфигурация роутера для маршрутов авторизации\регистрации*/
 func (route *UserRoute) RoutesSetting(router *mux.Router) *mux.Router {
+	router.HandleFunc(createUser, route.createUser).Methods("POST")
 	router.HandleFunc(updateUserSettings, route.JWTMiddle.JWTMiddleware(route.removeUserByID)).Methods("UPDATE")
 	router.HandleFunc(removeUserByID, route.JWTMiddle.JWTMiddleware(route.removeUserByID)).Methods("DELETE")
 	return router
