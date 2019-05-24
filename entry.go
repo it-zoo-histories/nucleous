@@ -15,7 +15,7 @@ import (
 )
 
 const (
-	nameService = "[NUCLEOUS]"
+	nameService = "[NUCLEOUS]: "
 )
 
 var (
@@ -48,11 +48,13 @@ func databasePreparing() {
 	err := database.ConnectionUser(databaseConfig)
 	if err != nil {
 		log.Println(nameService+"Error connected to database: ", err.Error())
+		return
 	}
 
 	err2 := database.ConnectToBD()
 	if err2 != nil {
-		log.Println(nameService+"error connect to database: ", err2.Error())
+		log.Println(nameService+"Error connect to database: ", err2.Error())
+		return
 	}
 }
 

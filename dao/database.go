@@ -1,7 +1,9 @@
 package dao
 
 import (
+	"context"
 	"errors"
+	"log"
 	"nucleous/configuration"
 
 	driver "github.com/arangodb/go-driver"
@@ -17,6 +19,7 @@ type Database struct {
 const (
 	// DatabaseName -
 	DatabaseName = "Client"
+	nameServer   = "[NUCLEOUS]: "
 )
 
 /*ConnectionUser - подключение пользователя к бд*/
@@ -26,8 +29,11 @@ func (db *Database) ConnectionUser(config *configuration.DatabaseConfiguration) 
 	})
 
 	if err != nil {
+		log.Println(nameServer+"Error code: ", err.Error())
 		return err
 	}
+
+	log.Println(nameServer + "success connect to database")
 
 	connectedUser, err2 := driver.NewClient(driver.ClientConfig{
 		Connection:     conn,
@@ -35,10 +41,15 @@ func (db *Database) ConnectionUser(config *configuration.DatabaseConfiguration) 
 	})
 
 	if err2 != nil {
+		log.Println(nameServer+"Error code: ", err2.Error())
 		return err2
 	}
 
+	log.Println(nameServer + "success connect user to bd")
+
 	db.ConnectUser = &connectedUser
+
+	log.Println(nameServer, *db)
 
 	return nil
 }
@@ -49,8 +60,12 @@ func (db *Database) ConnectToBD() error {
 		return errors.New("user can not connect to db")
 	}
 
-	database, err2 := (*db.ConnectUser).Database(nil, DatabaseName)
+	log.Println(nameServer+"success connect to bd", db)
+	ctx := context.Background()
+
+	database, err2 := (*db.ConnectUser).Database(ctx, DatabaseName)
 	if err2 != nil {
+		log.Println(nameServer+" error code: ", err2.Error())
 		return err2
 	}
 
