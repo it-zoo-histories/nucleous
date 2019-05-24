@@ -3,8 +3,6 @@ language: go
 
 env:
   - GO111MODULE=on
-  - GOFLAGS='-mod vendor'
-
 
 go:
   - 1.12.x
@@ -21,6 +19,7 @@ before_script:
   - go install github.com/golangci/golangci-lint/cmd/golangci-lint
 
 script:
-  - golangci-lint run
+  - go build .
 
-
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
