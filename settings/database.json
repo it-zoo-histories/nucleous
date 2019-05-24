@@ -1,5 +1,5 @@
 {
-    "address": "http://localhost:8529",
-    "username": "ROOT",
+    "address": "tcp://0.0.0.0:8529",
+    "username": "root",
     "password": "tMkN5CXbRX2Jxbhd"
 }
