@@ -65,10 +65,22 @@ func (db *Database) ConnectToBD() error {
 
 	database, err2 := (*db.ConnectUser).Database(ctx, DatabaseName)
 	if err2 != nil {
-		log.Println(nameServer+" error code: ", err2.Error())
-		return err2
+		return db.CreateDatabase()
 	}
 
 	db.Database = &database
+	return nil
+}
+
+/*CreateDatabase - создание бд*/
+func (db *Database) CreateDatabase() error {
+	dbCreate, err3 := (*db.ConnectUser).CreateDatabase(nil, DatabaseName, nil)
+
+	if err3 != nil {
+		log.Println(nameServer+"error code: ", err3.Error())
+		return err3
+	}
+
+	db.Database = &dbCreate
 	return nil
 }
