@@ -3,17 +3,24 @@ package payloads
 import (
 	"errors"
 	"regexp"
+	"time"
 )
 
 /*UserUpdatePayload - */
 type UserUpdatePayload struct {
-	UserName string `json:"username"`
-	Password string `json:"password"`
-	Email    string `json:"email"`
+	Avatar       string      `json:"avatar"`
+	UserName     string      `json:"username"`
+	Password     string      `json:"password"`
+	Email        string      `json:"email"`
+	Created      time.Time   `json:"created"`
+	Updated      []time.Time `json:"updated"`
+	Verification bool        `json:"verification"`
 
-	ValidateUsername bool
-	ValidatePassword bool
-	ValidateEmail    bool
+	ValidateUsername     bool
+	ValidatePassword     bool
+	ValidateEmail        bool
+	ValidateAvatar       bool
+	ValidateVerification bool
 }
 
 const (
@@ -39,6 +46,8 @@ func (pay *UserUpdatePayload) Validate() *UserUpdatePayload {
 	} else {
 		pay.ValidateEmail = true
 	}
+	pay.ValidateAvatar = false
+	pay.ValidateVerification = false
 	return pay
 }
 
