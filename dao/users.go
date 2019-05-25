@@ -1,18 +1,22 @@
 package dao
 
 import (
+	"context"
 	"errors"
 	"log"
 	"nucleous/models"
 	"nucleous/payloads"
 	"time"
 
+	"golang.org/x/crypto/bcrypt"
+
 	driver "github.com/arangodb/go-driver"
 )
 
 /*UserDAO - dao для работы с коллекцией пользователей*/
 type UserDAO struct {
-	Database *Database
+	Database         *Database
+	CurrentCacheuser *models.User
 }
 
 const (
@@ -47,8 +51,43 @@ func (dao *UserDAO) collectionGet() (*driver.Collection, error) {
 	return &coll, nil
 }
 
+func (dao *UserDAO) checkExistUsernameInDatabase(username string) (bool, error) {
+
+	query := "FOR d IN users FILTER d.user_name == @name RETURN d"
+	bindVars := map[string]interface{}{
+		"name": username}
+
+	ctx := context.Background()
+	cursor, err2 := (*dao.Database.Database).Query(ctx, query, bindVars)
+	if err2 != nil {
+		return false, err2
+	}
+	defer cursor.Close()
+	var document models.User
+	for {
+		_, err3 := cursor.ReadDocument(ctx, &document)
+		if driver.IsNoMoreDocuments(err3) {
+			break
+		} else if err3 != nil {
+			return false, err3
+		}
+	}
+
+	if document.ID != "" {
+		return true, nil
+	}
+	return false, nil
+}
+
 /*CreateNewUser - создание нового пользователя*/
 func (dao *UserDAO) CreateNewUser(userPay payloads.CreateUserPayload) (err error) {
+	resutl, err := dao.checkExistUsernameInDatabase(userPay.Username)
+	if err != nil {
+		return err
+	}
+	if resutl {
+		return errors.New("username is already taken")
+	}
 	var user models.User
 	user.Email = userPay.Email
 	user.Created = time.Now()
@@ -69,8 +108,59 @@ func (dao *UserDAO) CreateNewUser(userPay payloads.CreateUserPayload) (err error
 
 	log.Println(dao2Name+" meta infor after creating: ", meta)
 
+	user.ID = meta.Key
+
+	_, err3 := (*coll).UpdateDocument(nil, meta.Key, user)
+	if err3 != nil {
+		return err3
+	}
+
 	// err = dao.Database.C(UsersCollection).Insert(&user)
-	return err2
+	return nil
+}
+
+/*GetUserByCredentials - получение пользователя по его логину и паролю*/
+func (dao *UserDAO) GetUserByCredentials(payload *payloads.LoginPayload) (*models.User, error) {
+	result, err := dao.checkExistUsernameInDatabase(payload.Username)
+	if err != nil {
+		return nil, err
+	}
+
+	if !result {
+		return nil, errors.New("user not exist")
+	}
+
+	user, err2 := dao.getUserQuery(payload.Username, payload.Password)
+	if err2 != nil {
+		return nil, err2
+	}
+
+	return user, nil
+}
+
+func (dao *UserDAO) getUserQuery(username, passw string) (*models.User, error) {
+
+	query := "FOR d IN users FILTER d.user_name == @name RETURN d"
+	bindVars := map[string]interface{}{
+		"name": username,
+	}
+	cursor, err2 := (*dao.Database.Database).Query(nil, query, bindVars)
+	if err2 != nil {
+		return nil, err2
+	}
+	defer cursor.Close()
+	var user models.User
+	_, err3 := cursor.ReadDocument(nil, &user)
+	if err3 != nil {
+		return nil, err3
+	}
+
+	err4 := bcrypt.CompareHashAndPassword(user.Password, []byte(passw))
+	if err4 != nil {
+		return nil, err4
+	}
+
+	return &user, nil
 }
 
 /*FindUserByUserID - поиск пользователя по его идентификатору*/
@@ -110,7 +200,7 @@ func (dao *UserDAO) UpdateUserVerification(userid string, update bool) error {
 }
 
 /*UpdateUser - обновление данных пользователя по его идентификатору*/
-func (dao *UserDAO) UpdateUser(userid string, newpayload *payloads.UserUpdatePayload) (updated *models.User, err error) {
+func (dao *UserDAO) UpdateUser(newpayload *payloads.UserUpdatePayload) (updated *models.User, err error) {
 	// iduser := bson.ObjectIdHex(userid)
 
 	var document models.User
@@ -119,7 +209,7 @@ func (dao *UserDAO) UpdateUser(userid string, newpayload *payloads.UserUpdatePay
 		return nil, err
 	}
 
-	_, err2 := (*coll).ReadDocument(nil, userid, &document)
+	_, err2 := (*coll).ReadDocument(nil, newpayload.UserID, &document)
 	if err2 != nil {
 		return nil, err2
 	}
@@ -141,7 +231,7 @@ func (dao *UserDAO) UpdateUser(userid string, newpayload *payloads.UserUpdatePay
 		document.Verificated = newpayload.Verification
 	}
 
-	_, err3 := (*coll).UpdateDocument(nil, userid, document)
+	_, err3 := (*coll).UpdateDocument(nil, newpayload.UserID, document)
 
 	if err3 != nil {
 		return nil, err
@@ -159,9 +249,20 @@ func (dao *UserDAO) setupNewPayload(userInDb *models.User, payload *payloads.Use
 func (dao *UserDAO) checkVerificationUser(userModel models.User) error {
 	if userModel.Verificated {
 		return nil
-	} else {
-		return errors.New("user can not change user information")
 	}
+	return errors.New("user can not change user information")
+
+}
+
+/*RemoveUserByID - удаление пользователя по его идентификатору*/
+func (dao *UserDAO) RemoveUserByID(userpayload *payloads.RemoveUserPayload) error {
+	coll, err := dao.collectionGet()
+	if err != nil {
+		return err
+	}
+
+	_, err2 := (*coll).RemoveDocument(nil, userpayload.UserID)
+	return err2
 }
 
 // /*ChangeModelonModel - изменить модель пользователя на модель пользователя*/

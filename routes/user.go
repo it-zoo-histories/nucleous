@@ -304,7 +304,42 @@ func (route *UserRoute) updateUserSettings(w http.ResponseWriter, r *http.Reques
 		},
 			"application/json",
 		)
+		return
 	}
+
+	newUser, err2 := route.UserDao.UpdateUser(&payload)
+	if err2 != nil {
+		route.EResponser.ResponseWithError(w, r, http.StatusNotAcceptable, map[string]string{
+			"status":  "error",
+			"context": "UserRoute.UpdateUserSettings",
+			"code":    err2.Error(),
+		},
+			"application/json",
+		)
+		return
+	}
+
+	jsonUser, err3 := json.Marshal(newUser)
+	if err3 != nil {
+		route.EResponser.ResponseWithError(w, r, http.StatusInternalServerError, map[string]string{
+			"status":  "error",
+			"context": "UserRoute.UpdateUserSettings",
+			"code":    err3.Error(),
+		},
+			"application/json",
+		)
+		return
+	}
+
+	route.EResponser.ResponseWithJSON(w, r, http.StatusOK, map[string]string{
+		"status":  "success updated",
+		"data":    string(jsonUser),
+		"context": "UserRoute.RemoveUserByID",
+	},
+		"application/json",
+	)
+	return
+
 }
 
 func (route *UserRoute) removeUserByID(w http.ResponseWriter, r *http.Request) {
@@ -314,10 +349,31 @@ func (route *UserRoute) removeUserByID(w http.ResponseWriter, r *http.Request) {
 		route.EResponser.ResponseWithError(w, r, http.StatusNotAcceptable, map[string]string{
 			"status":  "error",
 			"context": "UserRoute.RemoveUserByID",
+			"code":    err.Error(),
 		},
 			"application/json",
 		)
+		return
 	}
+
+	if err2 := route.UserDao.RemoveUserByID(&payload); err2 != nil {
+		route.EResponser.ResponseWithError(w, r, http.StatusNotAcceptable, map[string]string{
+			"status":  "error",
+			"context": "UserRoute.RemoveUserByID",
+			"code":    err2.Error(),
+		},
+			"application/json",
+		)
+		return
+	}
+
+	route.EResponser.ResponseWithJSON(w, r, http.StatusOK, map[string]string{
+		"status":  "success removing user",
+		"context": "UserRoute.RemoveUserByID",
+	},
+		"application/json",
+	)
+	return
 }
 
 /*InitRoute - инициализация роутера*/

@@ -2,7 +2,6 @@ package middlewares
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 	"nucleous/configuration"
 	"nucleous/dao"
@@ -44,10 +43,11 @@ func (checker *JWTChecker) JWTMiddleware(next http.HandlerFunc) http.HandlerFunc
 			checker.EResponser.ResponseWithError(w, r, http.StatusUnauthorized, map[string]string{
 				"status":  "401",
 				"context": "nucleous.JWTMiddleware",
-				"code":    "token not exist",
+				"code":    err.Error(),
 			},
 				"application/json",
 			)
+			return
 		}
 
 		err2 := checker.checkValidationToken(token)
@@ -60,7 +60,9 @@ func (checker *JWTChecker) JWTMiddleware(next http.HandlerFunc) http.HandlerFunc
 			},
 				"application/json",
 			)
+			return
 		}
+
 		next(w, r)
 	})
 }
@@ -71,12 +73,12 @@ func (checker *JWTChecker) findTokenInBD(tokenValue string) (*models.Token, erro
 }
 
 func (checker *JWTChecker) checkValidationToken(token *models.Token) error {
-	result, username, err := checker.JWTMiddleWare.JWTEcdsa.ValidateToken(token.Value)
+	result, _, err := checker.JWTMiddleWare.JWTEcdsa.ValidateToken(token.Value)
 
-	log.Println("Check token validation for user: ", username)
+	// log.Println("Check token validation for user: ", username)
 
 	if !result {
-		// TODO: add remove token from database
+		checker.JWTMiddleWare.TokenDao.RemoveTokenByID(token.ID)
 	}
 
 	return err

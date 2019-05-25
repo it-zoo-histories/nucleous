@@ -59,8 +59,8 @@ func databasePreparing() {
 }
 
 func configureJWT() {
-	jwtMiddle := &middlewares.JWTChecker{}
-	jwtMiddle = jwtMiddle.New(tokenDao, userDao, jwtConfig)
+	jwt := &middlewares.JWTChecker{}
+	jwtMiddle = jwt.New(tokenDao, userDao, jwtConfig)
 }
 
 func init() {
