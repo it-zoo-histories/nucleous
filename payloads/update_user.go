@@ -8,6 +8,7 @@ import (
 
 /*UserUpdatePayload - */
 type UserUpdatePayload struct {
+	UserID       string      `json:"userid"`
 	Avatar       string      `json:"avatar"`
 	UserName     string      `json:"username"`
 	Password     string      `json:"password"`

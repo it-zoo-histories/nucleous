@@ -1,10 +1,11 @@
 package security
 
 import (
-	"fmt"
 	"nucleous/configuration"
 	"nucleous/dao"
+	"nucleous/models"
 	"nucleous/payloads"
+	"time"
 
 	"github.com/jenazads/gojwt"
 )
@@ -16,20 +17,25 @@ type ECDSAMiddle struct {
 	JWTEcdsa *gojwt.Gojwt
 }
 
-/*Login - авторизация*/
-func (middleware *ECDSAMiddle) Login(obj *payloads.LoginPayload) error {
-	fmt.Println("test")
-	return nil
-}
+/*CreateNewToken - авторизация*/
+func (middleware *ECDSAMiddle) CreateNewToken(obj *payloads.LoginPayload, userFromDb *models.User) (*models.Token, error) {
+	// fmt.Println("test")
+	tokenValue, err := middleware.JWTEcdsa.CreateToken(obj.Username)
+	if err != nil {
+		return nil, err
+	}
 
-/*Registration - регистрация*/
-func (middleware *ECDSAMiddle) Registration(obj *payloads.RegistrationPayload) error {
-	return nil
-}
+	tokenUser := &models.Token{}
+	tokenUser.Value = tokenValue
+	tokenUser.UserID = userFromDb.ID
+	tokenUser.Created = time.Now()
+	tokenUser.ExpireTo = time.Hour * 2
 
-/*Logout - выход из аккаунта*/
-func (middleware *ECDSAMiddle) Logout(obj *payloads.LogoutPayload) error {
-	return nil
+	token, err2 := middleware.TokenDao.CreateNewToken(tokenUser)
+	if err2 != nil {
+		return nil, err2
+	}
+	return token, nil
 }
 
 /*New - создание новой прослойки*/
@@ -38,12 +44,7 @@ func (middleware *ECDSAMiddle) New(tokensDao *dao.TokenDAO, usersDao *dao.UserDA
 	middleware.JWTEcdsa = jwtMiddle
 	middleware.TokenDao = tokensDao
 	middleware.UserDao = usersDao
-	return nil
-}
-
-/*CheckEnterUserToDatabase - проверка пользователя в базе данных*/
-func (middleware *ECDSAMiddle) CheckEnterUserToDatabase(obj payloads.LoginPayload) {
-
+	return middleware
 }
 
 /*tokenValidation - проверка токена*/
