@@ -45,7 +45,9 @@ func (checker *JWTChecker) JWTMiddleware(next http.HandlerFunc) http.HandlerFunc
 				"status":  "401",
 				"context": "nucleous.JWTMiddleware",
 				"code":    "token not exist",
-			})
+			},
+				"application/json",
+			)
 		}
 
 		err2 := checker.checkValidationToken(token)
@@ -55,7 +57,9 @@ func (checker *JWTChecker) JWTMiddleware(next http.HandlerFunc) http.HandlerFunc
 				"status":  "403",
 				"context": "nucleous.JWTMiddleware",
 				"code":    "invalid token",
-			})
+			},
+				"application/json",
+			)
 		}
 		next(w, r)
 	})

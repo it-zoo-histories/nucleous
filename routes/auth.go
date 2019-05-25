@@ -53,7 +53,9 @@ func (route *AuthRoute) autheticationByCredentials(w http.ResponseWriter, r *htt
 		route.EResponser.ResponseWithError(w, r, http.StatusNotAcceptable, map[string]string{
 			"status":  "error",
 			"context": "AuthRoute.Logout",
-		})
+		},
+			"application/json",
+		)
 	}
 }
 
@@ -65,7 +67,9 @@ func (route *AuthRoute) logoutFromAccount(w http.ResponseWriter, r *http.Request
 		route.EResponser.ResponseWithError(w, r, http.StatusNotAcceptable, map[string]string{
 			"status":  "error",
 			"context": "AuthRoute.Logout",
-		})
+		},
+			"application/json",
+		)
 	}
 }
 
@@ -77,7 +81,9 @@ func (route *AuthRoute) regsitrationAccount(w http.ResponseWriter, r *http.Reque
 		route.EResponser.ResponseWithError(w, r, http.StatusNotAcceptable, map[string]string{
 			"status":  "error",
 			"context": "AuthRoute.Registration",
-		})
+		},
+			"application/json",
+		)
 	}
 }
 
@@ -89,7 +95,9 @@ func (route *AuthRoute) autheticationByToken(w http.ResponseWriter, r *http.Requ
 		route.EResponser.ResponseWithError(w, r, http.StatusNotAcceptable, map[string]string{
 			"status":  "error",
 			"context": "AuthRoute.AuthenticationByToken",
-		})
+		},
+			"application/json",
+		)
 	}
 }
 

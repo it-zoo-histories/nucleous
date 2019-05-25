@@ -19,13 +19,17 @@ type EntryPointRoute struct {
 func (route *EntryPointRoute) methodsNotAllowed(w http.ResponseWriter, r *http.Request) {
 	route.EResponser.ResponseWithError(w, r, http.StatusMethodNotAllowed, map[string]string{
 		"status": "error request!",
-	})
+	},
+		"application/json",
+	)
 }
 
 func (route *EntryPointRoute) methodsNotFoundRequest(w http.ResponseWriter, r *http.Request) {
 	route.EResponser.ResponseWithError(w, r, http.StatusNotFound, map[string]string{
 		"status": "not found!",
-	})
+	},
+		"application/json",
+	)
 }
 
 func (route *EntryPointRoute) configureErrorRoutes(router *mux.Router) *mux.Router {

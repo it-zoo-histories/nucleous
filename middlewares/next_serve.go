@@ -22,7 +22,9 @@ func (ser *NextServe) SendNext(next http.HandlerFunc) http.HandlerFunc {
 				"status":  "404",
 				"context": "nucleous.Resender",
 				"code":    "does not convert need service and route on them",
-			})
+			},
+				"application/json",
+			)
 		}
 
 		next(w, r)
