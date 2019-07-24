@@ -18,6 +18,13 @@ const (
 	nameServer = "[NUCLEOUS: RESENDER]: "
 )
 
+var (
+	servicesEntries map[string]string = map[string]string{
+		"nickel": "http://nickel:9999",
+	}
+)
+
+/*SendNext - проксирование запроса по его внутреннему пакету*/
 func (ser *NextServe) SendNext(w http.ResponseWriter, r *http.Request) {
 
 	var payload payloads.ResendPacket
